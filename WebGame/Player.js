@@ -15,11 +15,26 @@ class Player {
     setTarget(x, y){
         this.targetX = x;
         this.targetY = y;
+
+        console.log(this.targetX);
+        console.log(this.targetY);
+        console.log(this.x);
+        console.log(this.y);
     }
 
     update(d){
-        this.x = this.targetX;
-        this.y = this.targetY;
+        if ((this.targetX - this.x) != 0 && (this.targetY - this.y) != 0) {
+            this.x += ((this.targetX - this.x) / (Math.sqrt((this.targetX - this.x) * (this.targetX - this.x) + (this.targetY - this.y) * (this.targetY - this.y)))) * this.speed * d;
+            this.y += ((this.targetY - this.y) / (Math.sqrt((this.targetX - this.x) * (this.targetX - this.x) + (this.targetY - this.y) * (this.targetY - this.y)))) * this.speed * d;
+        }else {
+            
+        }
+        
+
+        console.log(Math.sqrt((this.targetX - this.x) * (this.targetX - this.x) + (this.targetY - this.y) * (this.targetY - this.y)));
+
+        // console.log(this.x);
+        // console.log(this.y);
         // this.x += this.speed * d;
 
         // if (this.x >= 600 - this.w || this.x <= 0)
