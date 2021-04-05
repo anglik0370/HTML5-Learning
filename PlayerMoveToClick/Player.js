@@ -1,6 +1,6 @@
 class Player {
     constructor(x, y){
-        this.speed = 120;
+        this.speed = 200;
         this.sprite = new Image();
         this.sprite.src = "/Mario.png";
         this.x = x;
@@ -27,13 +27,31 @@ class Player {
     update(d){
         this.distance = Math.sqrt((this.targetX - this.x) * (this.targetX - this.x) + (this.targetY - this.y) * (this.targetY - this.y));
 
-        if (this.distance < 1) {
-            this.x = this.x;
-            this.y = this.y;
-        } else{
+        if (this.distance > 2)
+        {
             this.x += ((this.targetX - this.x) / this.distance) * this.speed * d;
             this.y += ((this.targetY - this.y) / this.distance) * this.speed * d;
         }
+
+        //let tx = this.targetX;
+        //let ty = this.targetY;
+        //let x = this.x;
+        //let y = this.y;
+
+        //let dx = tx = x;
+        //let dy = ty = y;
+
+        //let d = Math.sqrt(dx * dx + dy * dy);
+
+        //let vx = 0;
+        //let vy = 0;
+
+        // if(d > 1)
+        // {
+        //     vx = dx / d;
+        //     vy = dy / d;
+        // }
+
 
         // this.x += this.speed * d;
 

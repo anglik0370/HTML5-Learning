@@ -4,40 +4,29 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게임</title>
+    <title>세이브 테스트</title>
+
     <link rel="stylesheet" href="app.css">
 </head>
 <body>
-    <div class="container">
-        <canvas id="myGame" width="600" height="400"></canvas>
+    <div id="popup">
+        <div class="inner">
+            <input class="form-control" type="text" id="nameInput" placeholder="이름 입력"><br>
+            <input class="form-control" type="number" id="scoreInput" placeholder="점수 입력"><br>
+            <input class="form-control" type="text" id="massageInput" placeholder="남길말 입력"><br>
+
+            <button class="btn" id="btnSave">추가하기</button>
+            <button class="btn" id="btnClose">닫기</button>
+        </div>
     </div>
-    <script src="Player.js"></script>
-    <script>
 
-        let player = new Player(300, 200);
-        let canvas = document.querySelector("#myGame");
-        let ctx = canvas.getContext("2d");
+    <button class="btn" id="btnOpen">점수입력</button>
+    <button class="btn" id="btnLoad">불러오기</button>
 
-        canvas.addEventListener("click",e => {
-            player.setTarget(e.offsetX, e.offsetY);
-        });
+    <div id="rankList">
 
-        function update() {
-            player.update(1/60);
-        }
+    </div>
 
-        function render() {
-            ctx.clearRect(0, 0, 600, 400);
-            player.render(ctx);
-        }
-
-        
-        setInterval(() => {
-
-            update();
-            render();
-
-        }, 1000/60);
-    </script>
+    <script src="App.js"></script>
 </body>
 </html>
