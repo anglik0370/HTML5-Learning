@@ -11,33 +11,12 @@
     <div class="container">
         <canvas id="myGame" width="600" height="400"></canvas>
     </div>
-    <script src="Player.js"></script>
+    <script src="/js/Player.js"></script>
+    <script src="/js/Coin.js"></script>
+    <script src="/js/App.js"></script>
     <script>
+        let app = new App();
 
-        let player = new Player(300, 200);
-        let canvas = document.querySelector("#myGame");
-        let ctx = canvas.getContext("2d");
-
-        canvas.addEventListener("click",e => {
-            player.setTarget(e.offsetX, e.offsetY);
-        });
-
-        function update() {
-            player.update(1/60);
-        }
-
-        function render() {
-            ctx.clearRect(0, 0, 600, 400);
-            player.render(ctx);
-        }
-
-        
-        setInterval(() => {
-
-            update();
-            render();
-
-        }, 1000/60);
     </script>
 </body>
 </html>

@@ -2,7 +2,7 @@ class Player {
     constructor(x, y){
         this.speed = 200;
         this.sprite = new Image();
-        this.sprite.src = "/Mario.png";
+        this.sprite.src = "/images/mario.png";
         this.x = x;
         this.y = y;
         this.w = 20;
