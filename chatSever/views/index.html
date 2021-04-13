@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅페이지</title>
+    <link rel="stylesheet" href="/public/app.css">
+    <script src = "/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>안녕하세요</h1>
+    <input type="text", id="chatMsg">
+    <button id="btnSend">보내기</button>
+    <script>
+        let socket = io();
+
+            document.querySelector("#btnSend").addEventListener("click", e =>
+            {
+                let chat = document.querySelector("#chatMsg").value;
+                socket.emit('chat', {msg:chat});
+            });
+
+            socket.on("idk", data =>
+            {
+                console.log(data);
+            });
+    </script>
+</body>
+</html>
