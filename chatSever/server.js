@@ -1,23 +1,13 @@
 const http = require('http');
-const fs = require('fs');
 const socketio = require('socket.io');
+const express = require('express');
+const app = new express();
+const server = http.createServer(app);
+const path = require('path');
 
-const server = http.createServer((req, res) =>
+app.get('/', (req, res) =>
 {
-    let url = req.url;
-    let pathList = url.split("/");
-
-    if(pathList[1] == "public")
-    {
-        let file = fs.readFileSync(`${__dirname}/public/${pathList[2]}`);
-        res.write(file);
-        res.end();
-        return;
-    }
-
-    let html = fs.readFileSync(`${__dirname}/views/index.html`);
-    res.write(html);
-    res.end();
+    res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 
 const io = socketio(server);
