@@ -36,6 +36,13 @@ function socketConnect(){
         //console.log(roomList);
     });
     
+    socket.on("enter-room", data => {
+        //data에는 userList가 들어온다
+
+        userList = data.userList;
+        lobbyPage.classList.add("left");
+        chatPage.classList.remove("right");
+    });
 
     socket.on("chat", data => {
         let li = document.createElement("li");
@@ -77,12 +84,12 @@ function makeRoomData(roomList){
         li.classList.add("room");
         roomListDom.appendChild(li);
         
-        li.addEventListener("click", e =>{
-            console.log(x);
+        li.addEventListener("click", e => {
+            socket.emit("enter-room", {roomNo : x.roomNo});
         });
     });
 }
 
-//test코드 개발이 끝나면 지울 것들 
-loginIdInput.value = "쥬쥬";
-document.querySelector("#btnLogin").click();
+//test코드 개발이 끝나면 지울것
+// loginIdInput.value = "테스트";
+// document.querySelector("#btnLogin").click();
