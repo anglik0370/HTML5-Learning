@@ -75,7 +75,7 @@
     background-color: rgb(20, 117, 207);
 }
 
-.chat-box {
+.chat-box, .lobby-box {
     width:700px;
     height:500px;
     background-color: #fff;
@@ -136,4 +136,33 @@
 
 #btnSend {
     width:50px;
+}
+
+#roomList {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 40px;
+    list-style: none;
+    gap:20px;
+    padding: 10px;
+    height: 80%;
+    overflow-y: auto; /* 채팅방이 많아지면 스크롤바가 생기도록 처리 */
+}
+
+#roomList > .room {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background-color: #fff;
+    color:#000;
+    box-shadow: 0 0 2px 2px rgba(0,0,0,0.1);
+    transition: all 0.5s;
+}
+
+#roomList > .room:hover {
+    background-color: rgba(18, 107, 241, 0.8);
+    color:#fff;
 }
