@@ -1,0 +1,25 @@
+* {
+    margin:0;
+    padding:0;
+}
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+#gameCanvas {
+    border:1px solid #ddd;
+}
+
+.btn {
+    padding:8px 12px;
+    background-color: rgb(43, 119, 233);
+    color:#fff;
+    border:1px solid rgb(21, 106, 235);
+    transition: all 0.5s;
+    border-radius: 2px;
+}
+
+.btn:hover {
+    background-color: rgb(26, 79, 158);
+}
