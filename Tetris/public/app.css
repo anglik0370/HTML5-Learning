@@ -15,7 +15,7 @@
     display: flex;
     width:3072px;
     position: relative;
-    left:-1024px;
+    left:0px;
     top:0;
     transition: all 1s;
 }
@@ -34,6 +34,7 @@
 
 .game-container {
     display: flex;
+    position: relative;
 }
 
 .info-box {
@@ -72,4 +73,81 @@
     padding: 10px 16px;
     border-radius: 5px;
     font-size: 20px;
+}
+
+#gameOverBox {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: all 0.5s;
+}
+
+#gameOverBox.on {
+    opacity: 1;
+}
+
+#gameOverBox > h2 {
+    font-size: 50px;
+}
+
+.btn {
+    border: 1px solid transparent; /*외곽 테두리를 1px에 투명*/
+    transition: all 0.8s;
+    padding: 8px 12px;
+    outline: none;
+    border-radius: 5px;
+}
+
+.btn-blue {
+    border-color: rgb(25, 114, 187);
+    background-color: rgb(41, 124, 192);
+    color: #fff;
+}
+
+.btn-blue:hover {
+    background-color: rgb(19, 88, 145);
+}
+
+.btn-red {
+    border-color: rgb(197, 22, 22);
+    background-color: rgb(204, 41, 41);
+    color: #fff;
+}
+
+.btn-red:hover {
+    background-color: rgb(155, 21, 21);
+}
+
+.form-control {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    outline: none;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+}
+
+#loginPage {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 40px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
 }

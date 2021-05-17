@@ -1,4 +1,5 @@
 import {Game} from '/Game.js';
+import {NextBlock} from '/NextBlock.js';
 // typescript
 
 export class Player{
@@ -71,6 +72,13 @@ export class Player{
         this.y = 0;
         this.initPosition(); //위치 초기화
         this.setBlockData(true, this.colorSet[this.currentBlock]);
+
+        this.nextBlockCanvas = new NextBlock();
+        this.nextBlockCanvas.setNextBlock(this.blockSet[this.nextBlock][0], this.colorSet[this.nextBlock]);
+    }
+    
+    render(ctx) {
+        this.nextBlockCanvas.render();
     }
 
     initPosition(){
@@ -87,7 +95,15 @@ export class Player{
         let nextIdx = (this.idx + 1) % this.blockSeq.length;
         this.currentBlock = this.blockSeq[this.idx];
         this.nextBlock = this.blockSeq[nextIdx];
+
+        this.nextBlockCanvas.setNextBlock(this.blockSet[this.nextBlock][0], this.colorSet[this.nextBlock]);
+
         this.initPosition();
+
+        if(!this.checkPossible())
+        {
+            Game.instance.setGameOver();
+        }
     }
 
     moveLeft(){
@@ -112,8 +128,30 @@ export class Player{
         this.setBlockData(false);
         let temp = this.currentRot;
         this.currentRot = (this.currentRot + 1) % this.blockSet[this.currentBlock].length;
-        if(!this.checkPossible()){
-            this.currentRot = temp;
+        if(!this.checkPossible())
+        {
+            if(this.x == 0)
+            {
+                this.x++;
+                if(!this.checkPossible())
+                {
+                    this.x--;
+                    this.currentRot = temp;
+                }
+            }
+            else if(this.x == 9)
+            {
+                this.x--;
+                if(!this.checkPossible())
+                {
+                    this.x++;
+                    this.currentRot = temp;
+                }
+            }
+            else
+            {
+                this.currentRot = temp;
+            }
         }
         this.setBlockData(true, this.colorSet[this.currentBlock]);
     }
