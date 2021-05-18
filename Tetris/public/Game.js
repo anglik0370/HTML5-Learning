@@ -1,12 +1,20 @@
 import { Player } from '/Player.js';
 import { Block } from '/Block.js';
+import {$} from '/Query.js';
 
 export class Game {
     static instance = null;
 
-    constructor() {
-        this.canvas = document.querySelector("#gameCanvas");
+    constructor(socket) {
+        this.socket = socket; //게임에서도 소켓을 쓸 수 있다
+        this.addSocketEvent(); //소켓을 받아서 게임에서 사용할 소켓 이벤트들을 연동
+        
+        this.canvas = $("#gameCanvas");
         this.ctx = this.canvas.getContext("2d");
+
+        this.otherCanvas = $("#otherCanvas");
+        this.oCtx = this.otherCanvas.getContext("2d");
+
         this.frame = null;
         this.player = null; //가독성을 위한 코드
         this.arr = [];
@@ -17,18 +25,31 @@ export class Game {
         this.currentTime = 0;
 
         this.score = 0;
-        this.scoreBox = document.querySelector(".score-box");
+        this.scoreBox = $(".score-box");
 
-        this.gameOverPanal = document.querySelector("#gameOverBox");
+        this.gameOverPanal = $("#gameOverBox");
         this.gameOver = false;
+
+        this.addLineCount = 0;
     }
 
-    setGameOver()
+    setGameOver(win = false)
     {
+        this.gameOver = true;
         clearInterval(this.frame);
         this.gameOverPanal.classList.add("on");
+
+        if(win)
+        {
+            this.gameOverPanal.querySelector(".title").innerHTML = "너 승";
+        }
+        else
+        {
+            this.gameOverPanal.querySelector(".title").innerHTML = "너 패배";
+            this.socket.emit("game-lose");
+        }
+
         this.render();
-        this.gameOver = true;
     }
 
     addKeyEvent(){
@@ -108,6 +129,8 @@ export class Game {
     //한줄이 꽉찼는지 검사
     checkLine()
     {
+        let removedCount = 0; //몇줄이 사라질건지를 카운트
+
         for(let i = this.arr.length - 1; i >= 0; i--)
         {
             let full = true;
@@ -126,8 +149,106 @@ export class Game {
                 this.addScore();
 
                 i++;
+                removedCount++;
             }
+        }
 
+        if(this.addLineCount > 0)
+        {
+            if(this.addLineCount > removedCount) 
+            {
+                this.addLineCount -= removedCount;
+                removedCount = 0;
+            }
+            else
+            {
+                removedCount -= this.addLineCount;
+                this.addLineCount = 0;
+            }
+        }
+
+        if(removedCount > 0)
+        {
+            this.socket.emit("remove-line", {count:removedCount});
+        }
+
+        //내가 만약 상대한테 몇줄 받았다면
+
+        if(this.addLineCount > 0)
+        {
+            this.addLine(this.addLineCount);
+            this.addLineCount = 0;
+        }
+
+        let sendData = [];
+
+        for(let i = 0; i < this.arr.length; i++)
+        {
+            sendData.push(this.arr[i].map( x => ({color:x.color, fill:x.fill})));
+        }
+
+        //console.log(sendData);
+        this.socket.emit("game-data", {sendData});
+    }
+
+    //게임에서 받게 될 소켓 이벤트들으 붙여주는 메서드
+    addSocketEvent()
+    {
+        this.socket.on("game-data", data =>
+        {
+            const {sendData, sender} = data;
+            //2인 이상 게임에서는 sender를 사용해야 함
+            this.drawOtherCanvas(sendData);
+        });
+        this.socket.on("remove-line" , data => 
+        {
+            const {count, sender} = data;
+            this.addLineCount += count; //받은 카운트 만큼 addLineCount에 합산
+        });
+        this.socket.on("game-win", data =>
+        {
+            this.setGameOver(true);
+        });
+        this.socket.on("leave-player", data =>
+        {
+            const {isAdmin} = data;
+
+            if(isAdmin)
+            {
+                $("#btnStart").disabled = false;
+            }
+            else
+            {
+                this.setGameOver(true);
+            }
+        });
+    }
+
+    addLine(count)
+    {
+        for(let i = count; i < this.arr.length; i++)
+        {
+            for(let j = 0; j < this.arr[i].length; j++)
+            {
+                this.arr[i - count][j].copyBlockData(this.arr[i][j]);
+            }
+        }
+
+        for(let i = this.arr.length - count; i < this.arr.length; i++)
+        {
+            let empty = Math.floor(Math.random() * this.arr[i].length);//0~9까지 하나
+
+            for(let j = 0; j < this.arr[i].length; j++)
+            {
+                if(j !== empty)
+                {
+                    this.arr[i][j].setBlockData(true, "#555");
+                }
+                else
+                {
+                    this.arr[i][j].setBlockData(false, "#fff");
+                }
+            }
         }
     }
 
@@ -152,6 +273,23 @@ export class Game {
             for(let j = 0; j > this.arr[0].length; j++)
             {
                 this.arr[0][j].setBlockData(false); //맨 윗줄 날리기
+            }
+        }
+    }
+
+    drawOtherCanvas(data)
+    {
+        this.oCtx.clearRect(0, 0, 100, 200);
+
+        for(let i = 0; i < data.length; i++)
+        {
+            for(let j = 0; j < data[i].length; j++)
+            {
+                if(data[i][j].fill)
+                {
+                    this.oCtx.fillStyle = data[i][j].color;
+                    this.oCtx.fillRect(j*10, i*10, 10, 10);
+                }
             }
         }
     }
