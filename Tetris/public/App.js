@@ -53,10 +53,13 @@ class App {
         $("#btnRefresh").addEventListener("click", e => {
             this.socket.emit("room-list");
         });
+        $("#btnRank").addEventListener("click", e =>
+        {
+            this.socket.emit("rank-list");
+        });
 
         //디버그용 이벤트
         document.addEventListener("keydown", e => {
-            console.log(e.keyCode);
             if (e.keyCode == 81) {
                 //방만들기
                 this.debug("tjsdn@gmail.com", "1234");
@@ -108,10 +111,13 @@ class App {
         //방 만들고 들어오기
         this.socket.on("enter-room", data => {
             this.pageContainer.style.left = "-2048px";
+            this.game.reset();
+            $("#btnStart").disabled = false;
         });
         //남의 방 들어가기
         this.socket.on("join-room", data => {
             this.pageContainer.style.left = "-2048px";
+            this.game.reset();
             $("#btnStart").disabled = true;
         })
         this.socket.on("bad-access", data => {
@@ -124,6 +130,18 @@ class App {
             this.socket.emit("in-playing");
 
             $("#btnStart").disabled = true;
+        });
+        this.socket.on("rank-list", data => {
+            console.log(data);
+            let rankList = $("#rankList");
+
+            rankList.innerHTML="";
+
+            data.result.forEach( (x, idx) => {
+                let li = document.createElement("li");
+                li.innerHTML = `${idx + 1}등 ${x.name} : ${x.win}승, ${x.lose}패`;
+                rankList.appendChild(li);
+            });
         });
     }
 

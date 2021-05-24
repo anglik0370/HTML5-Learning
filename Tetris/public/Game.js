@@ -99,6 +99,26 @@ export class Game {
         this.player.render(this.ctx);
     }
 
+    reset() {
+        this.gameOverPanal.classList.remove("on");
+        this.gameOver = false;
+
+        this.arr = [];
+
+        for(let i = 0; i < 20; i++) {
+            let row = [];
+
+            for(let j = 0; j < 10; j++) {
+                row.push(new Block(j, i));
+            }
+            this.arr.push(row);
+        }
+
+
+        if(this.player !== null)
+        this.render()
+    }
+
     start() {
         if(this.frame != null) {
             clearInterval(this.frame);

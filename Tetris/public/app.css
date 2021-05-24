@@ -194,3 +194,12 @@
 #otherCanvas {
     border: 1px solid #ddd;
 }
+
+.menu-bar {
+    padding: 10px;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    display: flex;
+    justify-content: flex-end;
+}

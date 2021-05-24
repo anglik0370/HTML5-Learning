@@ -4,7 +4,6 @@ const socketio = require('socket.io');
 const path = require('path');
 const {Query, Pool} = require('./DB.js');
 const State = require('./State.js');
-const { Socket } = require('dgram');
 
 const app = new express(); //익스프레스 웹서버
 const server = http.createServer(app); //웹서버에 익스프레스 붙이기
@@ -25,7 +24,7 @@ io.on("connect", socket => {
     console.log(`${socket.id}님이 연결되었어요. 피자는 가져오셨겠죠?`);
     socket.state = State.IN_LOGIN;
 
-    socket.on("disconnecting", () =>
+    socket.on("disconnecting", async () =>
     {
         console.log(`${socket.id}님이 떠나셨어요`);
 
@@ -51,6 +50,8 @@ io.on("connect", socket => {
             else if (socket.state === State.IN_PLAYING)
             {
                 io.to(roomList[idx].roomName).emit("leave-player", {isAdmin:false});
+                
+                recordMatchData(socket, roomList[idx].roomName);
             }
         }
     })
@@ -65,6 +66,18 @@ io.on("connect", socket => {
             socket.emit("login-response", {status:false, msg:"로그인 실패"});
             return;
         }
+
+        // let connectList = [...  await io.allsockets()]; //모든 socket의 id를 알아낸다
+
+        // for(let i = 0; i < connectList.length; i++)
+        // {
+        //     if(io.sockets.get(connectList[i]).loginUser !== undefined 
+        //     && io.sockets.get(connectList[i]).loginUser === result[0].email)
+        //     {
+        //         socket.emit("bad-access", {msg:"중복 로그인"});
+        //         return;
+        //     }
+        // }
 
         socket.emit("login-response", {status:true, msg:"로그인 성공", roomList});
         socket.loginUser = result[0];
@@ -200,6 +213,8 @@ io.on("connect", socket => {
         let room = findRoom(socket);
         //2인 이상이라면 모든 유저가 전부 패배했는지를 체크
 
+        recordMatchData(socket, room);
+
         socket.broadcast.to(room).emit("game-win")
     });
 
@@ -219,6 +234,29 @@ io.on("connect", socket => {
     socket.on("room-list", data => {
         socket.emit("room-list", {roomList});
     });
+
+    socket.on("rank-list", async() => {
+
+        let result = await Query("SELECT id, name FROM users"); //모든 유저의 id를 가져온다
+        
+        for(let i = 0; i < result.length; i++)
+        {
+            let win = await Query(`SELECT users.email, count(*) AS cnt FROM matches, users 
+            WHERE ((matches.host_id = users.id AND matches.result = 1) 
+            OR (matches.client_id = users.id AND matches.result = 0))
+            AND users.id = ?`, [result[i].id]);
+            result[i].win = win[0].cnt;
+
+            let lose = await Query(`SELECT users.email, count(*) AS cnt FROM matches, users 
+            WHERE ((matches.host_id = users.id AND matches.result = 0) 
+            OR (matches.client_id = users.id AND matches.result = 1))
+            AND users.id = ?`, [result[i].id]);
+            result[i].lose = lose[0].cnt;
+        }
+
+        result.sort( (a, b) => (b.win - b.lose) - (a.win - a.lose) );
+        socket.emit("rank-list", {result});
+    });
 })
 
 function findRoom(socket)
@@ -226,6 +264,28 @@ function findRoom(socket)
     let socketRooms = [...socket.rooms];
     let room = socketRooms.find(x => x != socket.id);
     return room;
+}
+
+async function recordMatchData(depeatSocket, roomName) {
+    let sql = `INSERT INTO matches (result, host_id, client_id, host_score, client_score, date) 
+                            VALUES ( ?, ?, ?, ?, ?, NOW())`;
+    let list = [...await io.in(roomName).allSockets()];
+
+    let data = [];
+    if (list[0] === depeatSocket.id) {
+        //내가 방장
+        data.push(0); //방장패배
+        data.push(depeatSocket.loginUser.id);
+        data.push(io.sockets.sockets.get(list[1]).loginUser.id);
+    } else {
+        //내가 클라
+        data.push(1); //방장승리
+        data.push(io.sockets.sockets.get(list[0]).loginUser.id);
+        data.push(depeatSocket.loginUser.id);
+    }
+    data.push(0);
+    data.push(0);
+    await Query(sql, data); //전적정보의 기록
 }
 
 server.listen(9000, () => {
